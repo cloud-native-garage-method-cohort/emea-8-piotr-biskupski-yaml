@@ -1,0 +1,34 @@
+apiVersion : tekton.dev/v1beta1
+		kind: Pipeline
+metadata 21:
+  name: yaml-lint
+spec:
+  workspaces:
+    - name: shared-workspace
+  tasks:
+    - name: fetch-repository
+      taskRef:
+        name: git-clone
+        kind: ClusterTask
+      workspaces:
+        - name: output
+          workspace: shared-workspace
+      params:
+        - name: url
+          value: https://github.com/cloud-native-garage-method-cohort/emea-8-bernhard-ott-yaml.git
+        - name: subdirectory
+          value: ""
+        - name: deleteExisting
+          value: "true"
+    - name: yaml-lint-run #lint yaml
+      taskRef:
+        name: yaml-lint
+        kind: Task
+      runAfter:
+        - fetch-repository
+      workspaces:
+        - name: shared-workspace
+          workspace: shared-workspace
+      params:
+        - name: args
+          value: ["."]
